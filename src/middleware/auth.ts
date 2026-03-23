@@ -1,15 +1,17 @@
 import { Request, Response, NextFunction } from "express";
-import { supabaseAdmin } from "../config/supabase";
+import jwt from "jsonwebtoken";
 
 export interface AuthRequest extends Request {
   userId: string;
 }
 
-export async function requireAuth(
+const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-production";
+
+export function requireAuth(
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> {
+): void {
   const header = req.headers.authorization;
 
   if (!header?.startsWith("Bearer ")) {
@@ -20,19 +22,10 @@ export async function requireAuth(
   const token = header.slice(7);
 
   try {
-    const {
-      data: { user },
-      error,
-    } = await supabaseAdmin.auth.getUser(token);
-
-    if (error || !user) {
-      res.status(401).json({ error: "Invalid or expired token" });
-      return;
-    }
-
-    (req as AuthRequest).userId = user.id;
+    const payload = jwt.verify(token, JWT_SECRET) as { sub: string };
+    (req as AuthRequest).userId = payload.sub;
     next();
   } catch {
-    res.status(401).json({ error: "Authentication failed" });
+    res.status(401).json({ error: "Invalid or expired token" });
   }
 }

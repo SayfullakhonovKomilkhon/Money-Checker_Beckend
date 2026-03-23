@@ -1,11 +1,13 @@
 -- MoneyGramm — seed / test data
+-- Demo user password: demo123456  (bcrypt hash below)
 
 -- 1. Demo user
-INSERT INTO users (id, full_name, email, created_at)
+INSERT INTO users (id, full_name, email, password_hash, created_at)
 VALUES (
     '79594d62-5472-4d5a-8743-86788f8b8b8b',
     'Demo User',
     'demo@example.com',
+    '$2b$12$56zNycH58hc.Yi1ADAKayePPOTddcPp.afP4g/9svJppGN5BN/rS.',
     now()
 ) ON CONFLICT (id) DO NOTHING;
 
@@ -31,7 +33,7 @@ VALUES
     (gen_random_uuid(), '79594d62-5472-4d5a-8743-86788f8b8b8b', 'Salary',          'briefcase.fill',      '#4CAF50')
 ON CONFLICT DO NOTHING;
 
--- 4. Transactions (using the categories we just created)
+-- 4. Transactions
 WITH cat AS (
     SELECT id, name FROM categories
     WHERE user_id = '79594d62-5472-4d5a-8743-86788f8b8b8b'

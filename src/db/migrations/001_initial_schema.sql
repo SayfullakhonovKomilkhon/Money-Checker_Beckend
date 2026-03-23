@@ -1,5 +1,5 @@
 -- MoneyGramm — initial database schema
--- Aligned with iOS Swift models (CodingKeys → column names)
+-- Standalone (no Supabase dependency)
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -7,12 +7,13 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- 1. users
 -- ============================================================
 CREATE TABLE IF NOT EXISTS users (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    full_name   TEXT,
-    avatar_url  TEXT,
-    email       TEXT UNIQUE,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    full_name       TEXT,
+    avatar_url      TEXT,
+    email           TEXT UNIQUE NOT NULL,
+    password_hash   TEXT NOT NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ============================================================
@@ -151,20 +152,6 @@ CREATE TABLE IF NOT EXISTS savings (
 );
 
 CREATE INDEX IF NOT EXISTS idx_savings_user ON savings(user_id);
-
--- ============================================================
--- Row-Level Security (optional — enable when using Supabase Auth)
--- ============================================================
--- ALTER TABLE users            ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE user_balance     ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE categories       ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE transactions     ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE goals            ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE savings_goals    ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE debts            ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE notifications    ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE planned_expenses ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE savings          ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================
 -- Auto-update updated_at trigger
